@@ -7,13 +7,25 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/takazu8108180/go-demo-app/models"
+	"github.com/takazu8108180/go-demo-app/repositories"
 )
 
-func HelloHandler(c *gin.Context) {
+type Handler struct {
+	ar *repositories.ArticleRepository
+}
+
+func NewHandler(ar *repositories.ArticleRepository) *Handler {
+
+	return &Handler{
+		ar: ar,
+	}
+}
+
+func (h *Handler) HelloHandler(c *gin.Context) {
 	c.String(http.StatusOK, "Hello, world!\n")
 }
 
-func PostArticleHandler(c *gin.Context) {
+func (h *Handler) PostArticleHandler(c *gin.Context) {
 
 	var reqArticle models.Article
 
@@ -24,7 +36,7 @@ func PostArticleHandler(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, reqArticle)
 }
 
-func GetArticleListHandler(c *gin.Context) {
+func (h *Handler) GetArticleListHandler(c *gin.Context) {
 	page := c.DefaultQuery("page", "1")
 	pageNum, err := strconv.Atoi(page)
 
@@ -36,12 +48,17 @@ func GetArticleListHandler(c *gin.Context) {
 
 	log.Println(pageNum)
 
-	articleList := []models.Article{models.Article1, models.Article2}
+	// TODO:DB操作に置換
+	// articleList := []models.Article{models.Article1, models.Article2}
+	articleList, err := h.ar.GetList(c, pageNum)
+	if err != nil {
+		return
+	}
 
 	c.IndentedJSON(http.StatusOK, articleList)
 }
 
-func GetArticleDetailHandler(c *gin.Context) {
+func (h *Handler) GetArticleDetailHandler(c *gin.Context) {
 	id := c.Param("id")
 	articleID, err := strconv.Atoi(id)
 
@@ -53,12 +70,13 @@ func GetArticleDetailHandler(c *gin.Context) {
 
 	log.Println(articleID)
 
+	// TODO:DB操作に置換
 	article := models.Article1
 
 	c.IndentedJSON(http.StatusOK, article)
 }
 
-func PostNiceHandler(c *gin.Context) {
+func (h *Handler) PostNiceHandler(c *gin.Context) {
 
 	var niceArticle models.Article
 
@@ -69,7 +87,7 @@ func PostNiceHandler(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, niceArticle)
 }
 
-func PostCommentHandler(c *gin.Context) {
+func (h *Handler) PostCommentHandler(c *gin.Context) {
 
 	var comment models.Comment
 
