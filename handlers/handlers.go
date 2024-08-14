@@ -46,32 +46,23 @@ func (h *Handler) GetArticleListHandler(c *gin.Context) {
 		return
 	}
 
-	log.Println(pageNum)
-
-	// TODO:DB操作に置換
-	// articleList := []models.Article{models.Article1, models.Article2}
-	articleList, err := h.ar.GetList(c, pageNum)
+	articles, err := h.ar.GetList(c, pageNum)
 	if err != nil {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, articleList)
+	c.IndentedJSON(http.StatusOK, articles)
 }
 
 func (h *Handler) GetArticleDetailHandler(c *gin.Context) {
-	id := c.Param("id")
-	articleID, err := strconv.Atoi(id)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": "Invalid query parameter"})
-		c.Abort()
-		return
-	}
+	articleID := c.Param("id")
 
 	log.Println(articleID)
 
-	// TODO:DB操作に置換
-	article := models.Article1
+	article, err := h.ar.GetByID(c, articleID)
+	if err != nil {
+		return
+	}
 
 	c.IndentedJSON(http.StatusOK, article)
 }

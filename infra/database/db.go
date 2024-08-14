@@ -11,13 +11,13 @@ import (
 )
 
 type DB struct {
-	db *ent.Client
+	Client *ent.Client
 }
 
-func NewDB() *DB {
+func NewDB() (*DB, error) {
 	err := godotenv.Load(".env")
 	if err != nil {
-		fmt.Printf("Error Don't Read Env: %v", err)
+		return nil, err
 	}
 
 	// Configure ent
@@ -25,17 +25,17 @@ func NewDB() *DB {
 		os.Getenv("USERNAME"), os.Getenv("DATABASE"), os.Getenv("USERPASS"))
 	client, err := ent.Open("postgres", dbConn)
 	if err != nil {
-		log.Fatalf("failed opening connection to postgres: %v", err)
+		return nil, err
 	}
 
 	return &DB{
-		db: client,
-	}
+		Client: client,
+	}, nil
 }
 
 // Run the auto migration tool.
 func (d *DB) AutoMigrate() error {
-	if err := d.db.Schema.Create(context.Background()); err != nil {
+	if err := d.Client.Schema.Create(context.Background()); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
@@ -43,6 +43,6 @@ func (d *DB) AutoMigrate() error {
 }
 
 func (d *DB) CloseDB() error {
-	d.db.Close()
+	d.Client.Close()
 	return nil
 }

@@ -12,12 +12,16 @@ import (
 
 func main() {
 	// Setup DB
-	db := database.NewDB()
+	db, err := database.NewDB()
+	if err != nil {
+		panic(err)
+	}
+
 	defer func(db *database.DB) {
 		db.CloseDB()
 	}(db)
 
-	err := db.AutoMigrate()
+	err = db.AutoMigrate()
 	if err != nil {
 		log.Fatalf("failed auto migration: %v", err)
 	}
