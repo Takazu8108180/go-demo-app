@@ -1,0 +1,18 @@
+###
+GET http://localhost:8080/article/00236821-bec9-8f34-6492-da5fcdbde8e7 HTTP/1.1
+
+###
+GET http://localhost:8080/article/list?page=1 HTTP/1.1
+
+### Post article
+POST http://localhost:8080/article HTTP/1.1
+content-type: application/json
+
+{
+    "title": "title_002",
+    "contents": "contents_002",
+    "username": "user002"
+}
+
+### Post nice
+POST http://localhost:8080/article/00236821-bec9-8f34-6492-da5fcdbde8e7/nice HTTP/1.1

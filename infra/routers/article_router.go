@@ -14,8 +14,8 @@ func ArticleRouter(router *gin.Engine, db *database.DB) {
 		router.GET("/", h.HelloHandler)
 		router.POST("/article", h.PostArticleHandler)
 		router.GET("/article/list", h.GetArticleListHandler)
-		router.GET("/article/detail/:id", h.GetArticleDetailHandler)
-		router.POST("/article/nice", h.PostNiceHandler)
+		router.GET("/article/:id", h.GetArticleDetailHandler)
+		router.POST("/article/:id/nice", h.PostNiceHandler)
 		router.POST("/comment", h.PostCommentHandler)
 	}
 }
