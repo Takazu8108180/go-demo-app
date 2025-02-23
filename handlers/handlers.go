@@ -6,18 +6,18 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/takazu8108180/go-demo-app/adapter/web/presenter/model"
+	"github.com/takazu8108180/go-demo-app/adapter/presenter/model"
 	"github.com/takazu8108180/go-demo-app/models"
-	"github.com/takazu8108180/go-demo-app/repositories"
+	"github.com/takazu8108180/go-demo-app/usecase"
 )
 
 type Handler struct {
-	ar *repositories.ArticleRepository
+	au *usecase.ArticleUseCase
 }
 
-func NewHandler(ar *repositories.ArticleRepository) *Handler {
+func NewHandler(au *usecase.ArticleUseCase) *Handler {
 	return &Handler{
-		ar: ar,
+		au: au,
 	}
 }
 
@@ -31,17 +31,24 @@ func (h *Handler) PostArticleHandler(c *gin.Context) {
 		return
 	}
 
-	article, err := h.ar.CreateArticle(c, &reqBody)
+	article, err := h.au.CreateArticleUseCase(c, &reqBody)
 	if err != nil {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, article)
+	var resBody model.CreateArticleResponseBody
+	resBody.ID = article.ID
+	resBody.Title = article.Title
+	resBody.Contents = article.Contents
+	resBody.Username = article.Username
+	resBody.CreatedAt = article.CreatedAt
+
+	c.IndentedJSON(http.StatusOK, resBody)
 }
 
 func (h *Handler) GetArticleListHandler(c *gin.Context) {
 	page := c.DefaultQuery("page", "1")
-	log.Println(page)
+	// log.Println(page)
 	pageNum, err := strconv.Atoi(page)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "Invalid query parameter"})
@@ -49,8 +56,10 @@ func (h *Handler) GetArticleListHandler(c *gin.Context) {
 		return
 	}
 
-	articles, err := h.ar.GetList(c, pageNum)
+	articles, err := h.au.GetArticleListuseCase(c, pageNum)
 	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "Internal Server Error"})
+		c.Abort()
 		return
 	}
 
@@ -60,7 +69,8 @@ func (h *Handler) GetArticleListHandler(c *gin.Context) {
 func (h *Handler) GetArticleDetailHandler(c *gin.Context) {
 	articleID := c.Param("id")
 	log.Println(articleID)
-	article, err := h.ar.GetByID(c, articleID)
+
+	article, err := h.au.GetArticleByIDUseCase(c, articleID)
 	if err != nil {
 		return
 	}
@@ -70,12 +80,19 @@ func (h *Handler) GetArticleDetailHandler(c *gin.Context) {
 
 func (h *Handler) PostNiceHandler(c *gin.Context) {
 	articleID := c.Param("id")
-	article, err := h.ar.UpdateNice(c, articleID)
+	article, err := h.au.UpdateNiceUseCase(c, articleID)
 	if err != nil {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, article)
+	var resBody model.SendNiceResponseBody
+	resBody.ID = article.ID
+	resBody.Title = article.Title
+	resBody.Contents = article.Contents
+	resBody.Username = article.Username
+	resBody.CreatedAt = article.CreatedAt
+
+	c.IndentedJSON(http.StatusOK, resBody)
 }
 
 func (h *Handler) PostCommentHandler(c *gin.Context) {
@@ -86,7 +103,7 @@ func (h *Handler) PostCommentHandler(c *gin.Context) {
 		return
 	}
 
-	comment, err := h.ar.CreateComment(c, comment)
+	comment, err := h.au.CreateCommentUseCase(c, comment)
 	if err != nil {
 		return
 	}

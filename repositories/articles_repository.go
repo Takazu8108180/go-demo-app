@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/takazu8108180/go-demo-app/adapter/web/presenter/model"
 	"github.com/takazu8108180/go-demo-app/ent"
 
 	"github.com/takazu8108180/go-demo-app/infra/database"
@@ -77,7 +76,7 @@ func (ar *ArticleRepository) GetByID(ctx context.Context, id string) (*models.Ar
 	return &article, nil
 }
 
-func (ar *ArticleRepository) CreateArticle(ctx context.Context, article *model.CreateArticleRequestBody) (*model.CreateArticleResponseBody, error) {
+func (ar *ArticleRepository) CreateArticle(ctx context.Context, article *models.Article) (*models.Article, error) {
 	//TODO: entでnewしている実装からドメイン層で生成するように改修する
 	// id, err := uuid.NewRandom()
 
@@ -92,7 +91,7 @@ func (ar *ArticleRepository) CreateArticle(ctx context.Context, article *model.C
 		return nil, fmt.Errorf("failed querying user: %w", err)
 	}
 
-	var output model.CreateArticleResponseBody
+	var output models.Article
 
 	output.ID = result.ID
 	output.Title = result.Title
@@ -105,7 +104,7 @@ func (ar *ArticleRepository) CreateArticle(ctx context.Context, article *model.C
 	return &output, nil
 }
 
-func (ar *ArticleRepository) UpdateNice(ctx context.Context, id string) (*model.SendNiceResponseBody, error) {
+func (ar *ArticleRepository) UpdateNice(ctx context.Context, id string) (*models.Article, error) {
 	articleID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed querying user: %w", err)
@@ -122,13 +121,12 @@ func (ar *ArticleRepository) UpdateNice(ctx context.Context, id string) (*model.
 		return nil, fmt.Errorf("update error: %w", err)
 	}
 
-	var output model.SendNiceResponseBody
+	var output models.Article
 
 	output.ID = result.ID
 	output.Title = result.Title
 	output.Contents = result.Contents
 	output.Username = result.Username
-	output.Nice = result.Nice
 	output.CreatedAt = result.CreatedAt
 
 	log.Println("user returned: ", output)
